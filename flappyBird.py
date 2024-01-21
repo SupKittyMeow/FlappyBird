@@ -24,7 +24,6 @@ while running:
 
     # fill the screen with a color to wipe away anything from last frame
     screen.fill("purple")
-
     keys = pygame.key.get_pressed()
     if keys[pygame.K_SPACE]:
         if hasFlapped == False:
