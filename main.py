@@ -1,19 +1,25 @@
 # Example file showing a circle moving on screen
 import pygame
-
+ 
 # pygame setup
 pygame.init()
-screen = pygame.display.set_mode((1280, 720))
+screen = pygame.display.set_mode((1280, 720)) 
 clock = pygame.time.Clock()
 running = True
 dt = 0
 
 # player setup
+player = pygame.image.load('Images/Bird/0.png')
+player = pygame.transform.scale(player, (85, 60))
+
 velocity = 0
 gravity = 0.5
 jumpHeight = 10
 player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
 hasFlapped = False
+
+
+
 
 while running:
     # poll for events
@@ -34,7 +40,7 @@ while running:
         hasFlapped = False
 
     player_pos.y += velocity
-    pygame.draw.circle(screen, "red", player_pos, (40 + -velocity))
+    screen.blit(pygame.transform.rotate(player, -velocity * 5), (100, player_pos.y))
     velocity += gravity
 
     # flip() the display to put your work on screen
