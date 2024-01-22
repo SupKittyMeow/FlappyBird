@@ -56,15 +56,20 @@ tapToFly_x = (SCREEN_WIDTH - tapToFly.get_width()) / 2
 
 # end ui setup
 gameOver = pygame.image.load('Images/UI/GameOver.png')
-gameOver = pygame.transform.scale(gameOver, (288, 63))
+gameOver = pygame.transform.scale(gameOver, (374.4, 81.9))
 gameOver_x = (SCREEN_WIDTH - gameOver.get_width()) / 2
-gameOverTimer = 0
+replayButton = pygame.image.load('Images/UI/Play.png')
+replayButton = pygame.transform.scale(replayButton, (156, 87))
+replay_x = (SCREEN_WIDTH - replayButton.get_width()) / 2
+uiTimer = 0
 
 
 while running:
+    ev = pygame.event.get()
+
     # poll for events
     # pygame.QUIT event means the user clicked X to close your window
-    for event in pygame.event.get():
+    for event in ev:
         if event.type == pygame.QUIT:
             running = False
 
@@ -93,11 +98,23 @@ while running:
         screen.blit(tapToFly, (tapToFly_x, 175))
 
     if not canFlap:
-        gameOverTimer += 1
-        if gameOverTimer >= 60:
+        uiTimer += 1
+        if uiTimer >= 60:
             screen.blit(gameOver, (gameOver_x, 175))
+            screen.blit(replayButton, (replay_x, 350))
+            
     keys = pygame.key.get_pressed()
-    
+
+        # handle MOUSEBUTTONUP
+    for event in ev:
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if hasFlapped == False:
+                if canFlap:
+                    hasFlapped = True
+                    velocity = -jumpHeight
+                    shouldStart = True
+                    print("Flap")
+            
     if keys[pygame.K_SPACE]:
         if hasFlapped == False:
             if canFlap:
