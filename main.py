@@ -49,7 +49,7 @@ while running:
 
     shouldChangeAnimation += 1
 
-    if shouldChangeAnimation == 10:
+    if shouldChangeAnimation == 5:
         shouldChangeAnimation = 0
 
         # sets to next image
@@ -60,7 +60,6 @@ while running:
 
     player = pygame.image.load('Images/Bird/' + str(playerAnimation) + '.png')
     player = pygame.transform.scale(player, (85, 60))
-    dt2 = clock.tick(10) / 1000
 
     # flip() the display to put your work on screen
     pygame.display.flip()
@@ -70,4 +69,4 @@ while running:
     # independent physics.
     dt = clock.tick(60) / 1000
 
-pygame.quit()
+pygame.quit()  
