@@ -52,10 +52,6 @@ getReady = pygame.transform.scale(getReady, (276, 75))
 tapToFly = pygame.image.load('Images/UI/TapToFly.png')
 tapToFly = pygame.transform.scale(tapToFly, (171, 147))
 
-def die():
-    print('die')
-    canFlap = False
-
 while running:
     # poll for events
     # pygame.QUIT event means the user clicked X to close your window
@@ -76,9 +72,10 @@ while running:
 
     if shouldStart:
         pipePos -= pipeScrollingSpeed
-        if pipePos <= -SCREEN_WIDTH:
-            pipePos = SCREEN_WIDTH
-            pipeY = random.randint(300, 700)
+        if canFlap:
+            if pipePos <= -SCREEN_WIDTH:
+                pipePos = SCREEN_WIDTH
+                pipeY = random.randint(300, 700)
         screen.blit(bottomPipe, (pipePos, pipeY)) 
         screen.blit(topPipe, (pipePos, pipeY - 700)) 
     else:
@@ -91,16 +88,16 @@ while running:
         screen.blit(tapToFly, (tapToFly_x, 175))
 
     keys = pygame.key.get_pressed()
-    if canFlap:
-        if keys[pygame.K_SPACE]:
-            if hasFlapped == False:
+    
+    if keys[pygame.K_SPACE]:
+        if hasFlapped == False:
+            if canFlap:
                 hasFlapped = True
                 velocity = -jumpHeight
                 shouldStart = True
                 print("Flap")
-                print(player_pos.y)
-        else:
-            hasFlapped = False
+    else:
+        hasFlapped = False
     
     player_pos.y += velocity
     screen.blit(pygame.transform.rotate(player, -velocity * 5), (50, player_pos.y))
@@ -109,7 +106,7 @@ while running:
         velocity += gravity
 
     if player_pos.y > SCREEN_HEIGHT or player_pos.y < -40:
-        die()
+        canFlap = False
 
     shouldChangeAnimation += 1
 
@@ -124,9 +121,6 @@ while running:
 
     player = pygame.image.load('Images/Bird/' + str(playerAnimation) + '.png')
     player = pygame.transform.scale(player, (85, 60))
-
-    # if player.collidepoint()
-    #     die()
 
     # flip() the display to put your work on screen
     pygame.display.flip()
