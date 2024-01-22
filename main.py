@@ -1,4 +1,3 @@
-# Example file showing a circle moving on screen
 import pygame
  
 # pygame setup
@@ -9,17 +8,23 @@ running = True
 dt = 0
 
 # player setup
+player = pygame.sprite.Sprite()
 player = pygame.image.load('Images/Bird/0.png')
-player = pygame.transform.scale(player, (85, 60))
-
 playerAnimation = 0
 shouldChangeAnimation = 0
-
 velocity = 0
 gravity = 0.5
 jumpHeight = 10
 player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
 hasFlapped = False
+bird = pygame.sprite.Group(player)
+
+#pipe setup
+bottomPipe = pygame.sprite.Sprite()
+bottomPipe = pygame.image.load('Images/Obsticles/PipeUp.png')
+topPipe = pygame.sprite.Sprite()
+topPipe = pygame.image.load('Images/Obsticles/PipeDown.png')
+pipes = pygame.sprite.Group([bottomPipe, topPipe])
 
 # background setup
 background = pygame.image.load('Images/Deco/BGDay.png')
@@ -33,7 +38,7 @@ while running:
             running = False
 
     # fill the screen with a color to wipe away anything from last frame
-    screen.blit(background, (0, 0))
+    screen.blit(background, (0, 0)) 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_SPACE]:
         if hasFlapped == False:
