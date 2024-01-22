@@ -1,3 +1,4 @@
+from pickle import TRUE
 import pygame
 import random
 
@@ -23,6 +24,7 @@ jumpHeight = 10
 player_pos = pygame.Vector2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
 hasFlapped = False
 shouldStart = False
+canFlap = True
 
 #pipe setup
 bottomPipe = pygame.sprite.Sprite()
@@ -49,9 +51,10 @@ getReady = pygame.image.load('Images/UI/GetReady.png')
 getReady = pygame.transform.scale(getReady, (276, 75))
 tapToFly = pygame.image.load('Images/UI/TapToFly.png')
 tapToFly = pygame.transform.scale(tapToFly, (171, 147))
-        
+
 def die():
     print('die')
+    canFlap = False
 
 while running:
     # poll for events
@@ -79,24 +82,34 @@ while running:
         screen.blit(bottomPipe, (pipePos, pipeY)) 
         screen.blit(topPipe, (pipePos, pipeY - 700)) 
     else:
-        screen.blit(getReady, (SCREEN_WIDTH // 2, 50))
-        screen.blit(tapToFly, (SCREEN_WIDTH // 2, 150))
+        # Calculate the center point of the image
+        getReady_x = (SCREEN_WIDTH - getReady.get_width()) / 2
+        tapToFly_x = (SCREEN_WIDTH - tapToFly.get_width()) / 2
+
+        # Draw the image on the screen at its center point
+        screen.blit(getReady, (getReady_x, 100))
+        screen.blit(tapToFly, (tapToFly_x, 175))
 
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_SPACE]:
-        if hasFlapped == False:
-            hasFlapped = True
-            velocity = -jumpHeight
-            shouldStart = True
-            print("Flap")
-    else:
-        hasFlapped = False
+    if canFlap:
+        if keys[pygame.K_SPACE]:
+            if hasFlapped == False:
+                hasFlapped = True
+                velocity = -jumpHeight
+                shouldStart = True
+                print("Flap")
+                print(player_pos.y)
+        else:
+            hasFlapped = False
     
     player_pos.y += velocity
     screen.blit(pygame.transform.rotate(player, -velocity * 5), (50, player_pos.y))
 
     if shouldStart:
         velocity += gravity
+
+    if player_pos.y > SCREEN_HEIGHT or player_pos.y < -40:
+        die()
 
     shouldChangeAnimation += 1
 
@@ -123,4 +136,5 @@ while running:
     # independent physics.
     dt = clock.tick(60) / 1000
 
-# pygame.quit()  
+    if(not running):
+        pygame.quit() 
