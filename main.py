@@ -51,6 +51,15 @@ getReady = pygame.image.load('Images/UI/GetReady.png')
 getReady = pygame.transform.scale(getReady, (276, 75))
 tapToFly = pygame.image.load('Images/UI/TapToFly.png')
 tapToFly = pygame.transform.scale(tapToFly, (171, 147))
+getReady_x = (SCREEN_WIDTH - getReady.get_width()) / 2
+tapToFly_x = (SCREEN_WIDTH - tapToFly.get_width()) / 2
+
+# end ui setup
+gameOver = pygame.image.load('Images/UI/GameOver.png')
+gameOver = pygame.transform.scale(gameOver, (288, 63))
+gameOver_x = (SCREEN_WIDTH - gameOver.get_width()) / 2
+gameOverTimer = 0
+
 
 while running:
     # poll for events
@@ -79,14 +88,14 @@ while running:
         screen.blit(bottomPipe, (pipePos, pipeY)) 
         screen.blit(topPipe, (pipePos, pipeY - 700)) 
     else:
-        # Calculate the center point of the image
-        getReady_x = (SCREEN_WIDTH - getReady.get_width()) / 2
-        tapToFly_x = (SCREEN_WIDTH - tapToFly.get_width()) / 2
-
         # Draw the image on the screen at its center point
         screen.blit(getReady, (getReady_x, 100))
         screen.blit(tapToFly, (tapToFly_x, 175))
 
+    if not canFlap:
+        gameOverTimer += 1
+        if gameOverTimer >= 60:
+            screen.blit(gameOver, (gameOver_x, 175))
     keys = pygame.key.get_pressed()
     
     if keys[pygame.K_SPACE]:
