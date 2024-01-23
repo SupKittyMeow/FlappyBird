@@ -1,6 +1,13 @@
 from pickle import TRUE
+from re import X
+from tarfile import DIRTYPE
+from tkinter import Button
+from tkinter.tix import X_REGION, Y_REGION
+from typing import Any
 import pygame
 import random
+
+from pygame.sprite import Group, Group
 
 # pygame setup
 pygame.init()
@@ -13,29 +20,70 @@ SCREEN_HEIGHT = screen.get_height()
 running = True
 dt = 0
 
+# group setup
+bird = pygame.sprite.AbstractGroup()
+pipes = pygame.sprite.AbstractGroup()
+
 # player setup
-player = pygame.sprite.Sprite()
-player = pygame.image.load('Images/Bird/0.png')
+playerImage = pygame.image.load('Images/Bird/0.png')
 playerAnimation = 0
 shouldChangeAnimation = 0
 velocity = 0
 gravity = 0.5
 jumpHeight = 10
 player_pos = pygame.Vector2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
-hasFlapped = False
+hasFlapped = True
 shouldStart = False
 canFlap = True
 
+class Player(pygame.sprite.Sprite):
+    def __init__(self) -> None:
+        super().__init__()
+        self.image = pygame.transform.scale(playerImage, (85, 60))
+        self.rect = self.image.get_rect()
+    def update(self, playerAnimation) -> None:
+        self.image = pygame.transform.scale(pygame.image.load('Images/Bird/' + str(playerAnimation) + '.png'), (85, 60))
+
+bird = Player()
+
 #pipe setup
-bottomPipe = pygame.sprite.Sprite()
-bottomPipe = pygame.image.load('Images/Obsticles/PipeUp.png')
-bottomPipe = pygame.transform.scale(bottomPipe, (26*3, 160*3))
-topPipe = pygame.sprite.Sprite()
-topPipe = pygame.image.load('Images/Obsticles/PipeDown.png')
-topPipe = pygame.transform.scale(topPipe, (26*3, 160*3))
+bottomPipeImage = pygame.image.load('Images/Obsticles/PipeUp.png')
+bottomPipe1 = pygame.transform.scale(bottomPipeImage, (26*3, 160*3))
+bottomPipe1 = pygame.sprite.Sprite()
+bottomPipe1.add()
+topPipeImage = pygame.image.load('Images/Obsticles/PipeDown.png')
+topPipe1 = pygame.transform.scale(topPipeImage, (26*3, 160*3))
+topPipe1 = pygame.sprite.Sprite()
+pipes.add(topPipe1)
 pipeScrollingSpeed = 5
 pipePos = SCREEN_WIDTH
-pipeY = random.randint(300, 700)
+pipeY1 = random.randint(300, 700)
+
+class Pipe(pygame.sprite.Sprite):
+    def __init__(self, pI) -> None:
+        super().__init__()
+        self.image = pygame.transform.scale(pI, (26*3, 160*3))
+        self.rect = self.image.get_rect()
+
+bottomPipe1 = Pipe(bottomPipeImage)
+bottomPipe2 = Pipe(bottomPipeImage)
+topPipe1 = Pipe(topPipeImage)
+topPipe2 = Pipe(topPipeImage)
+
+pipePos = SCREEN_WIDTH
+pipePos2 = SCREEN_WIDTH + 500
+pipeY1 = random.randint(300, 700)
+pipeY2 = random.randint(300, 700)
+
+bottomPipe1.rect.x = pipePos
+bottomPipe1.rect.y = pipeY1
+topPipe1.rect.x = pipePos
+topPipe1.rect.y = pipeY1 - 700
+
+bottomPipe2.rect.x = pipePos2
+bottomPipe2.rect.y = pipeY2
+topPipe2.rect.x = pipePos2
+topPipe2.rect.y = pipeY2 - 700
 
 # background setup
 background1 = pygame.image.load('Images/Deco/BGDay.png')
@@ -55,16 +103,35 @@ getReady_x = (SCREEN_WIDTH - getReady.get_width()) / 2
 tapToFly_x = (SCREEN_WIDTH - tapToFly.get_width()) / 2
 
 # end ui setup
+uiTimer = 0
+
 gameOver = pygame.image.load('Images/UI/GameOver.png')
 gameOver = pygame.transform.scale(gameOver, (374.4, 81.9))
 gameOver_x = (SCREEN_WIDTH - gameOver.get_width()) / 2
-replayButton = pygame.image.load('Images/UI/Play.png')
-replayButton = pygame.transform.scale(replayButton, (156, 87))
-replay_x = (SCREEN_WIDTH - replayButton.get_width()) / 2
-uiTimer = 0
 
+class ReplayButton(pygame.sprite.Sprite):
+    def __init__(self, image) -> None:
+        super().__init__()
+        self.image = pygame.transform.scale(image, (156, 87))
+        self.rect = self.image.get_rect()
+        self.rect = self.image.get_rect()
+
+replayButton = ReplayButton(pygame.image.load('Images/UI/Play.png'))
+
+# score setup
+score = 0
+numbers = pygame.font.Font("Fonts/FlappyBirdFont.ttf", 30)
+
+def resetGame():
+    print('Replay')
+    exec(open("main.py").read())
 
 while running:
+    scoreTextSurface = numbers.render('text', True, 'white', 'white')
+    scoreTextRect = scoreTextSurface.get_rect()
+    scoreTextRect.center = (int(SCREEN_WIDTH - scoreTextRect.width / 2), 100)
+    screen.blit(scoreTextSurface, scoreTextRect)
+
     ev = pygame.event.get()
 
     # poll for events
@@ -72,12 +139,24 @@ while running:
     for event in ev:
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if hasFlapped == False:
+                if canFlap:
+                    hasFlapped = True
+                    velocity = -jumpHeight
+                    shouldStart = True
+                    print("Flap")
+        elif event.type == pygame.MOUSEBUTTONUP and uiTimer >= 60:
+            mousePos = pygame.mouse.get_pos()
+            if replayButton.rect.collidepoint(mousePos):
+                resetGame()
 
     # fill the screen with a scrolling bg to wipe away anything from last frame
-    bg1Pos -= bgScrollingSpeed
+    if canFlap:
+        bg1Pos -= bgScrollingSpeed
+        bg2Pos -= bgScrollingSpeed 
     if bg1Pos <= -SCREEN_WIDTH:
         bg1Pos = SCREEN_WIDTH
-    bg2Pos -= bgScrollingSpeed 
     if bg2Pos <= -SCREEN_WIDTH:
         bg2Pos = SCREEN_WIDTH
 
@@ -85,40 +164,50 @@ while running:
     screen.blit(background2, (bg2Pos, 0)) 
 
     if shouldStart:
-        pipePos -= pipeScrollingSpeed
+        bottomPipe1.rect.x = pipePos
+        bottomPipe1.rect.y = pipeY1
+        topPipe1.rect.x = pipePos
+        topPipe1.rect.y = pipeY1 - 700
+        bottomPipe2.rect.x = pipePos2
+        bottomPipe2.rect.y = pipeY2
+        topPipe2.rect.x = pipePos2
+        topPipe2.rect.y = pipeY2 - 700
+        screen.blit(bottomPipe1.image, (pipePos, pipeY1))
+        screen.blit(topPipe1.image, (pipePos, pipeY1 - 700))
+        screen.blit(bottomPipe2.image, (pipePos2, pipeY2))
+        screen.blit(topPipe2.image, (pipePos2, pipeY2 - 700))
+        
         if canFlap:
+            pipePos -= pipeScrollingSpeed
             if pipePos <= -SCREEN_WIDTH:
                 pipePos = SCREEN_WIDTH
-                pipeY = random.randint(300, 700)
-        screen.blit(bottomPipe, (pipePos, pipeY)) 
-        screen.blit(topPipe, (pipePos, pipeY - 700)) 
+                pipeY1 = random.randint(300, 700)
+            pipePos2 -= pipeScrollingSpeed
+            if pipePos2 <= -SCREEN_WIDTH:
+                pipePos2 = SCREEN_WIDTH
+                pipeY2 = random.randint(300, 700)
     else:
         # Draw the image on the screen at its center point
         screen.blit(getReady, (getReady_x, 100))
-        screen.blit(tapToFly, (tapToFly_x, 175))
-
+        screen.blit(tapToFly, (tapToFly_x, 190))
+     
     if not canFlap:
         uiTimer += 1
         if uiTimer >= 60:
             screen.blit(gameOver, (gameOver_x, 175))
-            screen.blit(replayButton, (replay_x, 350))
+            replayButton.rect.x = int(SCREEN_WIDTH - replayButton.image.get_width() * 2)
+            replayButton.rect.y = 350 
+            screen.blit(replayButton.image, (replayButton.rect.x, 350))
             
     keys = pygame.key.get_pressed()
 
-        # handle MOUSEBUTTONUP
-    for event in ev:
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if hasFlapped == False:
-                if canFlap:
-                    hasFlapped = True
-                    velocity = -jumpHeight
-                    shouldStart = True
-                    print("Flap")
-            
     if keys[pygame.K_SPACE]:
+        print(hasFlapped)
+        if uiTimer >= 60 and hasFlapped == False:
+            resetGame()
         if hasFlapped == False:
+            hasFlapped = True
             if canFlap:
-                hasFlapped = True
                 velocity = -jumpHeight
                 shouldStart = True
                 print("Flap")
@@ -126,13 +215,21 @@ while running:
         hasFlapped = False
     
     player_pos.y += velocity
-    screen.blit(pygame.transform.rotate(player, -velocity * 5), (50, player_pos.y))
+    bird.update(playerAnimation)
+    bird.rect.x = 50
+    bird.rect.y = int(player_pos.y)
+    screen.blit(pygame.transform.rotate(bird.image, -velocity * 5), (50, player_pos.y))
 
     if shouldStart:
         velocity += gravity
 
+    if pygame.sprite.collide_rect(bird, bottomPipe1) or pygame.sprite.collide_rect(bird, topPipe1) or pygame.sprite.collide_rect(bird, bottomPipe2) or pygame.sprite.collide_rect(bird, topPipe2):
+        canFlap = False
+        print('dietouch')
+
     if player_pos.y > SCREEN_HEIGHT or player_pos.y < -40:
         canFlap = False
+        print('dieother')
 
     shouldChangeAnimation += 1
 
@@ -144,9 +241,6 @@ while running:
             playerAnimation = 0
         else:
             playerAnimation += 1
-
-    player = pygame.image.load('Images/Bird/' + str(playerAnimation) + '.png')
-    player = pygame.transform.scale(player, (85, 60))
 
     # flip() the display to put your work on screen
     pygame.display.flip()
