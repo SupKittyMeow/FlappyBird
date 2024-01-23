@@ -127,6 +127,7 @@ numbers = pygame.font.SysFont("Roboto", 30)
 
 def resetGame():
     print('Replay')
+    pygame.mixer.Sound.play(pygame.mixer.Sound("SFX/sfx_swooshing.wav"))
     exec(open("main.py").read())
 
 while running:
@@ -140,6 +141,7 @@ while running:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if hasFlapped == False:
                 if canFlap:
+                    pygame.mixer.Sound.play(pygame.mixer.Sound("SFX/sfx_wing.wav"))
                     hasFlapped = True
                     velocity = -jumpHeight
                     shouldStart = True
@@ -188,6 +190,7 @@ while running:
                 alreadyAwardedPoint = False
             if pipePos <= bird.rect.x and not alreadyAwardedPoint or pipePos2 <= bird.rect.x and not alreadyAwardedPoint:
                 score += 1
+                pygame.mixer.Sound.play(pygame.mixer.Sound("SFX/sfx_point.wav"))
                 alreadyAwardedPoint = True
     else:
         # Draw the image on the screen at its center point
@@ -196,6 +199,8 @@ while running:
      
     if not canFlap:
         uiTimer += 1
+        if uiTimer == 20:
+            pygame.mixer.Sound.play(pygame.mixer.Sound("SFX/sfx_fall.wav"))
         if uiTimer >= 60:
             screen.blit(gameOver, (gameOver_x, 175))
             replayButton.rect.x = int(SCREEN_WIDTH - replayButton.image.get_width() * 2)
@@ -210,6 +215,7 @@ while running:
         if hasFlapped == False:
             hasFlapped = True
             if canFlap:
+                pygame.mixer.Sound.play(pygame.mixer.Sound("SFX/sfx_wing.wav"))
                 velocity = -jumpHeight
                 shouldStart = True
                 print("Flap")
@@ -226,10 +232,14 @@ while running:
         velocity += gravity
 
     if pygame.sprite.collide_rect(bird, bottomPipe1) or pygame.sprite.collide_rect(bird, topPipe1) or pygame.sprite.collide_rect(bird, bottomPipe2) or pygame.sprite.collide_rect(bird, topPipe2):
-        canFlap = False
+        if canFlap:
+            canFlap = False
+            pygame.mixer.Sound.play(pygame.mixer.Sound("SFX/sfx_die.wav"))
 
     if player_pos.y > SCREEN_HEIGHT or player_pos.y < -40:
-        canFlap = False
+        if canFlap:
+            canFlap = False
+            pygame.mixer.Sound.play(pygame.mixer.Sound("SFX/sfx_die.wav"))
 
     shouldChangeAnimation += 1
 
