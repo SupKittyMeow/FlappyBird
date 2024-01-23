@@ -58,11 +58,12 @@ pipes.add(topPipe1)
 pipeScrollingSpeed = 5
 pipePos = SCREEN_WIDTH
 pipeY1 = random.randint(300, 700)
+alreadyAwardedPoint = False
 
 class Pipe(pygame.sprite.Sprite):
     def __init__(self, pI) -> None:
         super().__init__()
-        self.image = pygame.transform.scale(pI, (26*3, 160*3))
+        self.image = pygame.transform.scale(pI, (78, 480))
         self.rect = self.image.get_rect()
 
 bottomPipe1 = Pipe(bottomPipeImage)
@@ -120,18 +121,15 @@ replayButton = ReplayButton(pygame.image.load('Images/UI/Play.png'))
 
 # score setup
 score = 0
-numbers = pygame.font.Font("Fonts/FlappyBirdFont.ttf", 30)
+
+# numbers = pygame.font.Font("Fonts/FlappyBirdFont.ttf", 30)
+numbers = pygame.font.SysFont("Roboto", 30)
 
 def resetGame():
     print('Replay')
     exec(open("main.py").read())
 
 while running:
-    scoreTextSurface = numbers.render('text', True, 'white', 'white')
-    scoreTextRect = scoreTextSurface.get_rect()
-    scoreTextRect.center = (int(SCREEN_WIDTH - scoreTextRect.width / 2), 100)
-    screen.blit(scoreTextSurface, scoreTextRect)
-
     ev = pygame.event.get()
 
     # poll for events
@@ -182,10 +180,15 @@ while running:
             if pipePos <= -SCREEN_WIDTH:
                 pipePos = SCREEN_WIDTH
                 pipeY1 = random.randint(300, 700)
+                alreadyAwardedPoint = False
             pipePos2 -= pipeScrollingSpeed
             if pipePos2 <= -SCREEN_WIDTH:
                 pipePos2 = SCREEN_WIDTH
                 pipeY2 = random.randint(300, 700)
+                alreadyAwardedPoint = False
+            if pipePos <= bird.rect.x and not alreadyAwardedPoint or pipePos2 <= bird.rect.x and not alreadyAwardedPoint:
+                score += 1
+                alreadyAwardedPoint = True
     else:
         # Draw the image on the screen at its center point
         screen.blit(getReady, (getReady_x, 100))
@@ -202,7 +205,6 @@ while running:
     keys = pygame.key.get_pressed()
 
     if keys[pygame.K_SPACE]:
-        print(hasFlapped)
         if uiTimer >= 60 and hasFlapped == False:
             resetGame()
         if hasFlapped == False:
@@ -225,11 +227,9 @@ while running:
 
     if pygame.sprite.collide_rect(bird, bottomPipe1) or pygame.sprite.collide_rect(bird, topPipe1) or pygame.sprite.collide_rect(bird, bottomPipe2) or pygame.sprite.collide_rect(bird, topPipe2):
         canFlap = False
-        print('dietouch')
 
     if player_pos.y > SCREEN_HEIGHT or player_pos.y < -40:
         canFlap = False
-        print('dieother')
 
     shouldChangeAnimation += 1
 
@@ -241,6 +241,12 @@ while running:
             playerAnimation = 0
         else:
             playerAnimation += 1
+
+    font = pygame.font.Font('Fonts/FlappyBirdFont.ttf', 50)
+    scoreTextSurface = font.render(str(score), True, (240,240,240), None)
+    scoreTextRect = scoreTextSurface.get_rect()
+    scoreTextRect.center  = (int(SCREEN_WIDTH / 2), 50)
+    screen.blit(scoreTextSurface, scoreTextRect)
 
     # flip() the display to put your work on screen
     pygame.display.flip()
