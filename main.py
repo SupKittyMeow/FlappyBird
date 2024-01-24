@@ -58,7 +58,8 @@ pipes.add(topPipe1)
 pipeScrollingSpeed = 5
 pipePos = SCREEN_WIDTH
 pipeY1 = random.randint(300, 700)
-alreadyAwardedPoint = False
+alreadyAwardedPoint1 = False
+alreadyAwardedPoint2 = False
 
 class Pipe(pygame.sprite.Sprite):
     def __init__(self, pI) -> None:
@@ -182,16 +183,21 @@ while running:
             if pipePos <= -SCREEN_WIDTH:
                 pipePos = SCREEN_WIDTH
                 pipeY1 = random.randint(300, 700)
-                alreadyAwardedPoint = False
+                alreadyAwardedPoint1 = False
+
             pipePos2 -= pipeScrollingSpeed
             if pipePos2 <= -SCREEN_WIDTH:
                 pipePos2 = SCREEN_WIDTH
                 pipeY2 = random.randint(300, 700)
-                alreadyAwardedPoint = False
-            if pipePos <= bird.rect.x and not alreadyAwardedPoint or pipePos2 <= bird.rect.x and not alreadyAwardedPoint:
+                alreadyAwardedPoint2 = False
+            if pipePos <= bird.rect.x and not alreadyAwardedPoint1:
                 score += 1
                 pygame.mixer.Sound.play(pygame.mixer.Sound("SFX/sfx_point.wav"))
-                alreadyAwardedPoint = True
+                alreadyAwardedPoint1 = True
+            elif pipePos2 <= bird.rect.x and not alreadyAwardedPoint2:
+                score += 1
+                pygame.mixer.Sound.play(pygame.mixer.Sound("SFX/sfx_point.wav"))
+                alreadyAwardedPoint2 = True
     else:
         # Draw the image on the screen at its center point
         screen.blit(getReady, (getReady_x, 100))
