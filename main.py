@@ -1,5 +1,6 @@
 from pickle import TRUE
 from re import X
+from sys import version
 from tarfile import DIRTYPE
 from tkinter import Button
 from tkinter.tix import X_REGION, Y_REGION
@@ -9,6 +10,7 @@ import random
 
 from pygame.sprite import Group, Group
 
+__version__ = "1.0.0"
 # pygame setup
 pygame.init()
 screen = pygame.display.set_mode((432, 768)) 
