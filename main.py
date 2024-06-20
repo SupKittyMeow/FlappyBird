@@ -1,10 +1,3 @@
-from pickle import TRUE
-from re import X
-from sys import version
-from tarfile import DIRTYPE
-from tkinter import Button
-from tkinter.tix import X_REGION, Y_REGION
-from typing import Any
 import pygame
 import random
 
@@ -43,6 +36,8 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
         self.image = pygame.transform.scale(playerImage, (85, 60))
         self.rect = self.image.get_rect()
+        self.mask = pygame.mask.from_surface(self.image, 0)
+
     def update(self, playerAnimation) -> None:
         self.image = pygame.transform.scale(pygame.image.load('Images/Bird/' + str(playerAnimation) + '.png'), (85, 60))
 
@@ -68,6 +63,7 @@ class Pipe(pygame.sprite.Sprite):
         super().__init__()
         self.image = pygame.transform.scale(pI, (78, 480))
         self.rect = self.image.get_rect()
+        self.mask = pygame.mask.from_surface(self.image, 0)
 
 bottomPipe1 = Pipe(bottomPipeImage)
 bottomPipe2 = Pipe(bottomPipeImage)
@@ -239,7 +235,7 @@ while running:
     if shouldStart:
         velocity += gravity
 
-    if pygame.sprite.collide_rect(bird, bottomPipe1) or pygame.sprite.collide_rect(bird, topPipe1) or pygame.sprite.collide_rect(bird, bottomPipe2) or pygame.sprite.collide_rect(bird, topPipe2):
+    if pygame.sprite.collide_mask(bird, bottomPipe1) or pygame.sprite.collide_mask(bird, topPipe1) or pygame.sprite.collide_mask(bird, bottomPipe2) or pygame.sprite.collide_mask(bird, topPipe2):
         if canFlap:
             canFlap = False
             pygame.mixer.Sound.play(pygame.mixer.Sound("SFX/sfx_die.wav"))
